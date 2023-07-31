@@ -1,0 +1,38 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+const int BP_SENSOR_PIN = A0;      // Analog pin for blood pressure sensor
+const int SUGAR_SENSOR_PIN = A1;   // Analog pin for sugar level sensor
+const int HEARTBEAT_SENSOR_PIN = 2; // Digital pin for heartbeat sensor
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(HEARTBEAT_SENSOR_PIN, INPUT);
+  lcd.begin(16, 2);
+  lcd.setBacklight(HIGH);
+  lcd.print("Health Monitor");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  int bp = random(80, 140);  // Simulated blood pressure reading
+  int sugar = random(80, 200);  // Simulated sugar level reading
+  int hb = digitalRead(HEARTBEAT_SENSOR_PIN) == HIGH ? 70 : 60; // Simulated heartbeat reading
+
+  lcd.clear();
+  lcd.print("BP: ");
+  lcd.print(bp);
+  lcd.print("/--");
+  lcd.setCursor(0, 1);
+  lcd.print("Sugar: ");
+  lcd.print(sugar);
+  lcd.print("  ");
+  lcd.print("HB: ");
+  lcd.print(hb);
+  lcd.print(" bpm");
+
+  delay(2000);
+}
