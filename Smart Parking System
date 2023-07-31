@@ -1,0 +1,61 @@
+#include <LiquidCrystal_I2C.h>
+
+const int sensor1TriggerPin = 2; // Trigger pin of sensor 1
+const int sensor1EchoPin = 3;    // Echo pin of sensor 1
+const int sensor2TriggerPin = 4; // Trigger pin of sensor 2
+const int sensor2EchoPin = 5;    // Echo pin of sensor 2
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Initialize the LCD (change I2C address if needed)
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(sensor1TriggerPin, OUTPUT);
+  pinMode(sensor1EchoPin, INPUT);
+  pinMode(sensor2TriggerPin, OUTPUT);
+  pinMode(sensor2EchoPin, INPUT);
+  lcd.begin(16, 2); // Initialize the LCD
+  lcd.print("Available: 2"); // Assuming both spaces are initially available
+}
+
+void loop() {
+  int distanceSensor1 = measureDistance(sensor1TriggerPin, sensor1EchoPin);
+  int distanceSensor2 = measureDistance(sensor2TriggerPin, sensor2EchoPin);
+
+  updateDisplay(distanceSensor1, distanceSensor2);
+
+  delay(1000); // Adjust this delay based on your requirements
+}
+
+int measureDistance(int triggerPin, int echoPin) {
+  long duration, distance;
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+  return distance;
+}
+
+void updateDisplay(int distance1, int distance2) {
+  lcd.clear();
+  int availableSpaces = 0;
+
+  if (distance1 < 50) { // Adjust this threshold based on your parking space size
+    availableSpaces++;
+  }
+  if (distance2 < 50) {
+    availableSpaces++;
+  }
+
+  lcd.print("Available: ");
+  lcd.print(availableSpaces);
+  lcd.setCursor(0, 1);
+
+  if (availableSpaces > 0) {
+    lcd.print("Space Available");
+  } else {
+    lcd.print("No Space Available");
+  }
+}
