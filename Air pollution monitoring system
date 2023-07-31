@@ -1,0 +1,35 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+const int MQ135_PIN = A0;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+  Serial.begin(9600);
+  lcd.begin(16, 2);
+  lcd.setBacklight(HIGH);
+}
+
+void loop() {
+  float gasValue = readGasSensor();
+  displayGasValue(gasValue);
+  delay(2000);
+}
+
+float readGasSensor() {
+  float voltage = analogRead(MQ135_PIN) * (5.0 / 1023.0);
+  float RS_air = (5.0 - voltage) / voltage;
+  float MQ135_RL = 10.0;
+  float ratio = RS_air / MQ135_RL;
+  float GAS_R0 = 9.83;
+  float GAS_Factor = 1.7;
+  return GAS_R0 * pow(ratio, GAS_Factor);
+}
+
+void displayGasValue(float ppmValue) {
+  lcd.clear();
+  lcd.print("Gas Concentration");
+  lcd.setCursor(0, 1);
+  lcd.print(ppmValue);
+  lcd.print(" ppm");
+}
